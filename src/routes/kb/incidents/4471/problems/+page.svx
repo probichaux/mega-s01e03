@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: Paul Robichaux
 status: proposed
 reviewed: 2026-10-30
-signature: Paul Robichaux
+signature: 'v1.eyJzdWIiOiI0NDciLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzM5MjA3NiwiZXhwIjoxNzkzNDc4NDc2fQ.LTtXOZsGPVNIkO06T-7AgTwcZh13b4Bxe8Bmo-ouHGI'
 ---
 
 <script>
