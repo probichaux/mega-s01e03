@@ -1,0 +1,76 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Paul Robichaux
+status: proposed
+reviewed: 2026-10-30
+signature: Paul Robichaux
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/probichaux/mega-s01e03/issues';
+  const tickets = {
+    parser: { href: `${repo}/1`, label: 'mega-s01e03#1' },
+    hint: { href: `${repo}/2`, label: 'mega-s01e03#2' },
+    'one-day': { href: `${repo}/3`, label: 'mega-s01e03#3' },
+  };
+</script>
+
+[#4471](/kb/incidents/4471) is marked known: one bug, one fix queued. Its reports say otherwise.
+Three different bugs were merged into it, because the desk merges on subject line
+([decision 0001](/kb/decisions/0001-dedupe-by-subject)), and every one of these reports has a
+subject like "wrong day". The queued parser fix closes only the first.
+
+<Callout kind="warn">
+Do not close #4471 when the parser fix ships. Two of its problems need fixes of their own.
+</Callout>
+
+## The problems
+
+<ProblemTable ticket={4471} {tickets} />
+
+The table reads the same export as [#4471](/kb/incidents/4471). It counts each report once,
+because the export pages overlap and some reports come twice.
+
+### `parser`: day-first dates read month first
+
+Every tenant on file writes the day first. The shared parser reads every date month first, so a
+booking for 8 January becomes 1 August. This is the bug #4471 names, and the queued fix is for it.
+
+### `hint`: the booking-v3 form asks for the month first
+
+The booking-v3 form prints `MM/DD/YYYY` under its date field. At a day-first tenant, people
+follow the hint and type the month first, and the form reads it the tenant's way, day first.
+The dates swap just like the parser bug, so the reports read the same. They are a different bug:
+the parser fix does not change the hint. `causes.ts` already knew this cause; #4471's cause
+table marks it "no ticket of its own".
+
+### `one-day`: dates that move by one day
+
+Some reports are not a swap at all. A Tuesday shows as a Monday. A client in Lisbon gets
+Tuesday, and a client in Toronto gets Monday, for the same meeting. An invite arrives before the
+booking was made. This looks like a time-zone shift: a date turned into a time, moved between
+zones, and read back as a date. The desk noted these reports as one-day moves
+(`desk-notes.json`), but #4471's cause table still counts them under `parser`.
+
+## How the reports were placed
+
+- **By the report first.** A report the desk read as a one-day move is a one-day move, whatever
+  its tenant.
+- **Then by tenant and form,** with `causes.ts`: a form report from a booking-v3 tenant is
+  `hint`; any other report from a day-first tenant is `parser`.
+- **Not by intake tag.** Intake guesses `parser` or `hint` from the browser, and it disagrees
+  with the tenant often.
+- **Not by subject.** The subjects are the same across all three problems.
+
+## Lessons
+
+- A subject line tells you what the reporter saw, not what broke. Read the body before you
+  merge a report into a known ticket.
+- When a ticket's own cause table shows a second cause, give that cause its own ticket.
+
+<RenderStamp {signature} />
